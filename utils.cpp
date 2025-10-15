@@ -60,7 +60,7 @@ void flow(long long n , long long m , long long t , vector<vector<long long>>& c
 }
 void limit_on_turns(long long n , long long m , long long t , long long J , vector<vector<long long>>& clauses) {
     auto get_id = [&](int i, int j, int k, int dir, bool entry){
-        return ((i*m)+(j-1))*(8*t +2)+ (8*k + (entry ? dir : dir + 4));
+        return ((i*m)+(j-1))*(8*t)+ (8*k + (entry ? dir : dir + 4));
     };
     auto get_dir = [](int dir){
         dir = dir%4;
