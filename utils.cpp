@@ -7,7 +7,7 @@ vector<int> get_ids(long long i , long long j , long long m , long long t) {
         res.push_back(i*m + j + 8*t + k);
     }
     return res;
-}s
+}
 
 void oneEntry(long long n , long long m , long long t , vector<vector<long long>>& clauses) {
     for(long long i = 1; i <= n; i++) {
