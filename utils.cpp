@@ -1,6 +1,6 @@
 #include "encode.cpp"
 
-void oneEntry(long long n , long long m , long long t , vector<vector<long long>>& clauses) {
+void oneEntry(long long n , long long m , long long t , vector<vector<long long>>& clauses, int seed) {
     for(long long i = 1; i <= n; i++) {
         for(long long j = 1; j <= m; j++) {
             vector<long long> res;
@@ -9,12 +9,12 @@ void oneEntry(long long n , long long m , long long t , vector<vector<long long>
                     res.push_back((i*m + j - 1)*(8LL*t) + 8*k + l);
                 }
             }
-            encode(res , clauses , n, m, t, 1);
+            encode(res , clauses , n, m, t, 1, seed);
         }
     }
 }
 
-void oneExit(long long n , long long m , long long t , vector<vector<long long>>& clauses) {
+void oneExit(long long n , long long m , long long t , vector<vector<long long>>& clauses, int seed) {
     for(long long i = 1; i <= n; i++) {
         for(long long j = 1; j <= m; j++) {
             vector<long long> res;
@@ -23,7 +23,7 @@ void oneExit(long long n , long long m , long long t , vector<vector<long long>>
                     res.push_back((i*m + j - 1)*(8LL*t) + 8*k + l);
                 }
             }
-            encode(res , clauses , n ,m , t, 1);
+            encode(res , clauses , n ,m , t, 1, seed);
         }
     }
 }
@@ -58,9 +58,9 @@ void flow(long long n , long long m , long long t , vector<vector<long long>>& c
         }
     }
 }
-void limit_on_turns(long long n , long long m , long long t , long long J , vector<vector<long long>>& clauses) {
+void limit_on_turns(long long n , long long m , long long t , long long J , vector<vector<long long>>& clauses, int seed) {
     auto get_id = [&](int i, int j, int k, int dir, bool entry){
-        return ((i*m)+(j-1))*(8*t +2)+ (8*k + (entry ? dir : dir + 4));
+        return ((i*m)+(j-1))*(8*t)+ (8*k + (entry ? dir : dir + 4));
     };
     auto get_dir = [](int dir){
         dir = dir%4;
@@ -81,6 +81,6 @@ void limit_on_turns(long long n , long long m , long long t , long long J , vect
                 
             }
         }
-        encode(clauses , clauses , n, m, t, J);
+        encode(clauses , clauses , n, m, t, J, seed+k);
     }
 }
