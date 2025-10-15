@@ -1,4 +1,3 @@
-#include "utils.h"
 #include "encode.cpp"
 
 void oneEntry(long long n , long long m , long long t , vector<vector<long long>>& clauses) {
@@ -10,7 +9,7 @@ void oneEntry(long long n , long long m , long long t , vector<vector<long long>
                     res.push_back((i*m + j - 1)*(8LL*t) + 8*k + l);
                 }
             }
-            encode(n , m ,res , clauses , 1);
+            encode(res , clauses , n, m, t, 1);
         }
     }
 }
@@ -24,7 +23,7 @@ void oneExit(long long n , long long m , long long t , vector<vector<long long>>
                     res.push_back((i*m + j - 1)*(8LL*t) + 8*k + l);
                 }
             }
-            encode(n , m , res , clauses , 1);
+            encode(res , clauses , n ,m , t, 1);
         }
     }
 }
@@ -50,7 +49,7 @@ void flow(long long n , long long m , long long t , vector<vector<long long>>& c
                     res.push_back(-1LL*((i*m + j - 1)*(8LL*t) + 8*k + l));
                     for(int e = 1 ; e <= 7 ; e++) {
                         if(e != 4 && e + l >= 4 && e + l < 8) {
-                            res.push_back((i*m + j - 1)*(8LL*t) + 8*k + l + e);
+                            res.push_back((i*m + j - 1)*(8LL*t) + 8*k + l + e);;
                         } 
                     }
                 }
