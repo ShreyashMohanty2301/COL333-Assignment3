@@ -58,4 +58,29 @@ void flow(long long n , long long m , long long t , vector<vector<long long>>& c
         }
     }
 }
-
+void limit_on_turns(long long n , long long m , long long t , long long J , vector<vector<long long>>& clauses) {
+    auto get_id = [&](int i, int j, int k, int dir, bool entry){
+        return ((i*m)+(j-1))*(8*t +2)+ (8*k + (entry ? dir : dir + 4));
+    };
+    auto get_dir = [](int dir){
+        dir = dir%4;
+        if(dir ==0) return 4;
+        else return dir;
+    };
+    for(int k = 0; k<t; k++){
+        vector<vector<long long>> clauses;
+        for(int i=1; i<=n; i++){
+            for(int j = 1; j<=m; j++){
+                vector<long long> temp;
+                for(int dir = 0; dir < 4; dir++){
+                    temp = {get_id(i,j,k,dir,true), get_id(i,j,k,get_dir(dir+1),false)};
+                    clauses.push_back(temp);
+                    temp = {get_id(i,j,k,dir,true), get_id(i,j,k,get_dir(dir+3),false)};
+                    clauses.push_back(temp);
+                }
+                
+            }
+        }
+        encode(clauses , clauses , n, m, t, J);
+    }
+}
