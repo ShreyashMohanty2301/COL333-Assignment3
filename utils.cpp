@@ -1,4 +1,7 @@
 #include "encode.cpp"
+#include <vector>
+#include <set>
+using namespace std;
 
 void oneEntry(long long n , long long m , long long t , vector<vector<long long>>& clauses) {
     for(long long i = 1; i <= n; i++) {
@@ -28,9 +31,10 @@ void oneExit(long long n , long long m , long long t , vector<vector<long long>>
     }
 }
 
-void flow(long long n , long long m , long long t , vector<vector<long long>>& clauses) {
+void flow(long long n , long long m , long long t , vector<vector<long long>>& clauses , set<pair<int,int>>& end_points) {
     for(long long i = 1; i <= n; i++) {
         for(long long j = 1; j <= m; j++) {
+            if(end_points.find({i,j}) != end_points.end()) continue;
             vector<long long> res;
             for(int k = 0; k <= t - 1 ; k++) {
                 for(int l = 1; l <= 4; l++) {
@@ -43,6 +47,7 @@ void flow(long long n , long long m , long long t , vector<vector<long long>>& c
     }
     for(long long i = 1; i <= n; i++) {
         for(long long j = 1; j <= m; j++) {
+            if(end_points.find({i,j}) != end_points.end()) continue;
             vector<long long> res;
             for(int k = 0; k <= t - 1 ; k++) {
                 for(int l = 1; l <= 4; l++) {
@@ -60,7 +65,7 @@ void flow(long long n , long long m , long long t , vector<vector<long long>>& c
 }
 void limit_on_turns(long long n , long long m , long long t , long long J , vector<vector<long long>>& clauses) {
     auto get_id = [&](int i, int j, int k, int dir, bool entry){
-        return ((i*m)+(j-1))*(8*t)+ (8*k + (entry ? dir : dir + 4));
+        return ((i*m)+(j-1))*(8*t +2)+ (8*k + (entry ? dir : dir + 4));
     };
     auto get_dir = [](int dir){
         dir = dir%4;
@@ -82,5 +87,34 @@ void limit_on_turns(long long n , long long m , long long t , long long J , vect
             }
         }
         encode(clauses , clauses , n, m, t, J);
+    }
+}
+
+void continuity(long long n , long long m , long long t , vector<vector<long long>>& clauses , set<pair<int,int>>& end_points) {
+    for(int i = 1 ; i <= n; i++) {
+        for(int j = 1; j <= m; j++) {
+            if(end_points.find({i,j}) != end_points.end()) continue;
+            vector<long long>res;
+            for(int k = 0; k < t; k++) {
+                for(int l = 5 ; l <= 8; l++) {
+                    if(i - 1 >= 1 && l == 5) {
+                        res.push_back(-1LL*((i*m + j - 1)*(8LL*t) + 8*k + l));
+                        res.push_back(( ( (i-1)*m + j - 1)*(8LL*t) + 8*k + 3));
+                    }
+                    if(j + 1 <= m && l == 6) {
+                        res.push_back(-1LL*((i*m + j - 1)*(8LL*t) + 8*k + l));
+                        res.push_back(((i*m + (j+1) - 1)*(8LL*t) + 8*k + 4));
+                    }
+                    if(i + 1 <= n && l == 7) {
+                        res.push_back(-1LL*((i*m + j - 1)*(8LL*t) + 8*k + l));
+                        res.push_back((((i+1)*m + j - 1)*(8LL*t) + 8*k + 1));
+                    }
+                    if(j - 1 >= 1 && l == 8) {
+                        res.push_back(-1LL*((i*m + j - 1)*(8LL*t) + 8*k + l));
+                        res.push_back(((i*m + (j - 1) - 1)*(8LL*t) + 8*k + 2));
+                    }
+                }
+            }
+        }
     }
 }
