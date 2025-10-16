@@ -52,7 +52,7 @@ void endPoint(int n , int m , int k , vector<vector<int>>& clauses, int seed , v
         }
         clauses.push_back({hash_p(i + 1, lines[i][2], lines[i][3], n, m, k)});
         clauses.push_back(res);
-        encode(res1,clauses, n, m, k, 1, seed);
+        encode(res,clauses, n, m, k, 1, seed);
         clauses.push_back(res);
         for(int j = 0;j < k; j++) {
             for(int dir = NORTH; dir <= WEST; dir++) {
@@ -62,7 +62,7 @@ void endPoint(int n , int m , int k , vector<vector<int>>& clauses, int seed , v
     }
 }
 
-void flow(int n , int m , int k , vector<vector<int>>& clauses, set<pair<int,int>>& points) {
+void flow(int n , int m , int k , vector<vector<int>>& clauses, set<pair<int,int>>& points , int seed) {
     for(int i = 0; i < n ;i++) {
         for(int j = 0; j < m; j++) {
             if(points.find({i , j}) != points.end()) continue;
@@ -90,7 +90,7 @@ void flow(int n , int m , int k , vector<vector<int>>& clauses, set<pair<int,int
                             res1.push_back(hash_d(l, i, j - 1, EAST, n, m, k));
                         }
                     }
-                    encode();
+                    encode(res1,clauses,n,m,k,1,seed);
                     res1.push_back(hash_d(l, i, j, dir, n, m, k));
                     clauses.push_back(res);
                     clauses.push_back(res1);
