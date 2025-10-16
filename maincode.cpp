@@ -11,15 +11,23 @@ int main(int argc, char* argv[]) {
     for(auto line : prob.lines) {
         end_points.insert({line[2], line[3]});
     }
+    cout<<"Input read done"<<endl;
     strtPoint(prob.N, prob.M, prob.K, clauses,  prob.lines);
+    cout<<"Start Point done"<<endl;
     endPoint(prob.N, prob.M, prob.K, clauses, prob.lines);
+    cout<<"End Point done"<<endl;
     flow(prob.N, prob.M, prob.K, clauses, end_points);
+    cout<<"Flow done"<<endl;
     limit_on_turns(prob.N, prob.M, prob.K, prob.J, clauses, 1);
-    at_most_one_p(prob.N, prob.M, prob.K, clauses);
+    cout<<"Limit on turns done"<<endl;
+    at_most_one_p(prob.N, prob.M, prob.K, clauses, prob.J*prob.N*prob.M*10);
+    cout<<"At most one P done"<<endl;
+    // at_most_one_d(prob.N, prob.M, prob.K, clauses, prob.J*prob.N*prob.M*20);
     if(prob.scenario == 2) {
         popularity(prob.N, prob.M, prob.K, clauses, prob.popular);
     }
     path_consistency(prob.N, prob.M, prob.K, clauses);   
+    cout<<"Path consistency done"<<endl;
 
     //l take as input a file named test.city (Part I) and
     // produce a file test.satinput – the input file for minisat. You can assume that test.city exists in

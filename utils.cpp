@@ -37,11 +37,16 @@ void strtPoint(int n, int m, int k, vector<vector<int>>& clauses, vector<vector<
 
         // Constraint: EXACTLY ONE outgoing path
         vector<int> outgoing_paths;
+        outgoing_paths.clear();
         outgoing_paths.push_back(hash_d(i, sx, sy, NORTH, n, m, k));
         outgoing_paths.push_back(hash_d(i, sx, sy, SOUTH, n, m, k));
         outgoing_paths.push_back(hash_d(i, sx, sy, EAST, n, m, k));
         outgoing_paths.push_back(hash_d(i, sx, sy, WEST, n, m, k));
-        
+        if(sx == 2 && sy ==4){
+            for(int temp=0; temp<outgoing_paths.size(); temp++){
+                cout<<outgoing_paths[temp]<<" ";
+            }
+        }
         clauses.push_back(outgoing_paths); // At least one
         
         for (int j = 0; j < 4; j++) { // At most one (pairwise)
@@ -116,19 +121,22 @@ void flow(int n , int m , int k , vector<vector<int>>& clauses, set<pair<int,int
                                     hash_d(l, i, j, WEST, n, m, k)};
                 clauses.push_back(rand);
                 rand.clear();
+                rand.push_back(-hash_p(l, i, j, n, m, k));
+                
                 if(i-1>=0){
-                    rand.push_back(hash_d(l, i - 1, j, SOUTH, n, m, k));
+                    rand.push_back(hash_p(l, i - 1, j, n, m, k));
                 }
                 if(j+1<m){
-                    rand.push_back(hash_d(l, i, j + 1, WEST, n, m, k));
+                    rand.push_back(hash_p(l, i, j + 1, n, m, k));
                 }
                 if(i+1<n){
-                    rand.push_back(hash_d(l, i + 1, j, NORTH, n, m, k));
+                    rand.push_back(hash_p(l, i + 1, j,  n, m, k));
                 }
                 if(j-1>=0){
-                    rand.push_back(hash_d(l, i, j - 1, EAST, n, m, k));
+                    rand.push_back(hash_p(l, i, j - 1,  n, m, k));
                 }
-                rand.push_back(-hash_p(l, i, j, n, m, k));
+                // rand.push_back(-hash_p(l, i, j, n, m, k));
+                clauses.push_back(rand);
                 // clauses.push_back(rand);
                 for(int dir = NORTH; dir <= WEST; dir++) {
                     if( dir == NORTH && i-1<0) continue;
@@ -248,20 +256,38 @@ void limit_on_turns(int n , int m , int k , int J , vector<vector<int>>& fin_cla
         encode(variables, fin_clauses, n, m, k, J, seed+metro);
     }
 }
-void at_most_one_p(int n, int m, int k, vector<vector<int>>& fin_clauses) {
+void at_most_one_p(int n, int m, int k, vector<vector<int>>& fin_clauses, int seed) {
     for(int i=0; i<n; i++){
         for(int j=0; j<m; j++){
-            vector<int> variables;
+            vector<int> vars;
             for(int metro=0; metro<k; metro++){
-                for(int metro2 = metro+1; metro2<k; metro2++){
-                    vector<int> res;
-                    res = {-hash_p(metro, i, j, n, m, k), -hash_p(metro2, i, j, n, m, k)};
-                    fin_clauses.push_back(res);
-                }
+
+                    vars.push_back(hash_p(metro, i, j, n, m, k));
+
+                    // fin_clauses.push_back(res);
+               
             }
+            encode(vars, fin_clauses, n, m, k, 1, seed+i*n+j);
         }
     }
-}
+   
+} 
+// void at_most_one_d(int n, int m, int k, vector<vector<int>>& fin_clauses, int seed) {
+//     for(int i=0; i<n; i++){
+//         for(int j=0; j<m; j++){
+//             vector<int> vars;
+//             for(int metro=0; metro<k; metro++){
+//                     for(int dir = 0; dir < 4; dir++){
+//                         vars.push_back(hash_d(metro, i, j, dir, n, m, k));
+//                     }
+//                     // fin_clauses.push_back(res);
+               
+//             }
+//             encode(vars, fin_clauses, n, m, k, 1, seed+i*n*10+j*10);
+//         }
+//     }
+   
+// } 
 void path_consistency(int n, int m, int k, vector<vector<int>>& fin_clauses) {
     for(int metro=0; metro<k; metro++){
         for(int i=0; i<n; i++){
@@ -376,3 +402,5 @@ void create_inputfile_for_sat(vector<vector<int>>& clauses, string filename) {
     }
     myfile.close();
 }
+
+

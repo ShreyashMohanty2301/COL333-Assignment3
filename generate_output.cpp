@@ -43,47 +43,66 @@ void gen_output(Problem& prob, map<int, bool>& var_map, string out_fname) {
 
         while(!(cx == ex && cy == ey)) {
             bool moved = false;
-            int var_id = hash_p(i, cx, cy, prob.N, prob.M, prob.K);
-            // cout<<"Var id: "<<var_id<<endl;
-            // cout<<hash_p(i, cx+1, cy, prob.N, prob.M, prob.K)<<" "<<hash_p(i, cx-1, cy, prob.N, prob.M, prob.K)<<" "<<hash_p(i, cx, cy+1, prob.N, prob.M, prob.K)<<" "<<hash_p(i, cx, cy-1, prob.N, prob.M, prob.K)<<endl;
-            if(cx+1<prob.N && var_map.find(hash_p(i, cx+1, cy, prob.N, prob.M, prob.K)) != var_map.end() && var_map[hash_p(i, cx+1, cy,  prob.N, prob.M, prob.K)] == true && !(parx == cx+1 && pary == cy)) {
-            out << "R ";
-            parx = cx;
-            pary = cy;
-            cx = cx + 1;
-            moved = true;
+            int base = hash_d(i, cx, cy, NORTH,  prob.N, prob.M, prob.K);
+            // try move right (EAST)
+            if(cx+1<prob.N && var_map.find(base + SOUTH) != var_map.end() && var_map.at(base + SOUTH) == true && !(parx == cx+1 && pary == cy)) {
+                out << "R ";
+                parx = cx;
+                pary = cy;
+                cx = cx + 1;
+                moved = true;
             }
-            else if(cx-1>=0 && var_map.find(hash_p(i, cx-1, cy, prob.N, prob.M, prob.K)) != var_map.end() && var_map[hash_p(i, cx-1, cy,  prob.N, prob.M, prob.K)] == true && !(parx == cx-1 && pary == cy)) {
-            out << "L ";
-            parx = cx;
-            pary = cy;
-            cx = cx - 1;
-            moved = true;
+            // try move left (WEST)
+            else if(cx-1>=0 && var_map.find(base + NORTH) != var_map.end() && var_map.at(base + NORTH) == true && !(parx == cx-1 && pary == cy)) {
+                // if(moved){
+                //     cout<<"1"<<endl;
+                //     cout<<"Error: Multiple moves possible for metro line "<<i<<" at position ("<<cx<<", "<<cy<<")."<<endl;
+                //     return;
+                // }
+                out << "L ";
+                parx = cx;
+                pary = cy;
+                cx = cx - 1;
+                moved = true;
             }
-            else if(cy+1<prob.M && var_map.find(hash_p(i, cx, cy+1, prob.N, prob.M, prob.K)) != var_map.end() && var_map[hash_p(i, cx, cy+1,  prob.N, prob.M, prob.K)] == true && !(parx == cx && pary == cy+1)) {
-            out << "D ";
-            parx = cx;
-            pary = cy;
-            cy = cy + 1;
-            moved = true;
+            // try move down (SOUTH)
+            else if(cy+1<prob.M && var_map.find(base + EAST) != var_map.end() && var_map.at(base + EAST) == true && !(parx == cx && pary == cy+1)) {
+                // if(moved){
+                //     cout<<"2"<<endl;
+                //     cout<<"Error: Multiple moves possible for metro line "<<i<<" at position ("<<cx<<", "<<cy<<")."<<endl;
+                //     return;
+                // }
+                out << "D ";
+                parx = cx;
+                pary = cy;
+                cy = cy + 1;
+                moved = true;
             }
-            else if(cy-1>=0 && var_map.find(hash_p(i, cx, cy-1, prob.N, prob.M, prob.K)) != var_map.end() && var_map[hash_p(i, cx, cy-1,  prob.N, prob.M, prob.K)] == true && !(parx == cx && pary == cy-1)) {
-            out << "U ";
-            parx = cx;
-            pary = cy;
-            cy = cy - 1;
-            moved = true;
+            // try move up (NORTH)
+            else if(cy-1>=0 && var_map.find(base + WEST) != var_map.end() && var_map.at(base + WEST) == true && !(parx == cx && pary == cy-1)) {
+                // if(moved){
+                //     cout<<"3"<<endl;
+                //     cout<<"Error: Multiple moves possible for metro line "<<i<<" at position ("<<cx<<", "<<cy<<")."<<endl;
+                //     return;
+                // }
+                out << "U ";
+                parx = cx;
+                pary = cy;
+                cy = cy - 1;
+                moved = true;
             }
-            if(!moved) {
-            cerr << "Error: No valid move found for metro line " << i << " at position (" << cx << ", " << cy << ")." << endl;
-            return;
+            else {
+                // cout<<"4"<<endl;
+                cout<<base<<endl;
+                cerr << "Error: No valid move found for metro line " << i << " at position (" << cx << ", " << cy << ")." << endl;
+                return;
             }
         }
         out << "0" << endl;
-        // cout << "0" << endl;
     }
     
 }
+
 int main(int argc, char* argv[]){
     Problem prob = read_input(argv[2]);
     map<int, bool> var_map = read_output(argv[1]);
