@@ -139,3 +139,13 @@ void create_inputfile_for_sat(vector<vector<long long>>& clauses, string filenam
     }
     myfile.close();
 }
+int hash_p(int k, int x, int y, int N, int M, int K) {
+    return (k*M*N)+ (y*N)+ x+ 1;
+}
+int hash_d(int k, int x, int y, int dir, int N, int M, int K) {
+    return (K*M*N)+ (k*M*N*4) + (y*N*4) + (x*4) + 1 + dir;
+}
+int hash_t(int k, int x, int y, int N, int M, int K) {
+    //hash_T(k,x,y)=(K⋅N⋅M+K⋅N⋅M⋅4)+(k⋅N⋅M)+(y⋅N)+x+1
+    return (K*M*N)+ (K*M*N*4) + (k*M*N) + (y*N) + x + 1;
+}
