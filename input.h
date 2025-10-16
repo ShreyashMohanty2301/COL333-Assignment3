@@ -1,3 +1,5 @@
+#ifndef INPUT_H
+#define INPUT_H
 #include <vector>
 
 using namespace std;
@@ -13,3 +15,4 @@ class Problem{
     vector<vector<int>> lines; 
     vector<vector<int>> popular;
 };
+#endif

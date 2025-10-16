@@ -10,7 +10,7 @@
 // 0 0 5 2
 // 2 1 4 3
 
-#include "input.cpp"
+#include "input.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
