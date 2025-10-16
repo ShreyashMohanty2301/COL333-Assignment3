@@ -14,6 +14,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <map>
 
 using namespace std;
 
@@ -49,4 +50,31 @@ Problem read_input(string filename){
         return prob;
     }
     
+}
+map<int, bool> read_output(string filename){
+    ifstream infile;
+    infile.open(filename);
+    map<int, bool> var_map;
+    string temp;
+    while(infile >> temp){
+        // cout<<temp<<endl;
+        if(temp == "SAT"){
+            continue;
+        }
+        else if(temp == "UNSAT"){
+            break;
+        }
+        else{
+            int var = stoi(temp);
+            if(var > 0){
+                var_map[var] = true;
+                // cout<<var<<" ";
+            }
+            else{
+                var_map[-var] = false;
+            }
+        }
+    }
+    infile.close();
+    return var_map;
 }

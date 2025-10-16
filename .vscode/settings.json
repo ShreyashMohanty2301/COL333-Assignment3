@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "vector": "cpp"
+        "*.txt": "plaintext",
+        "vector": "cpp",
+        "iostream": "cpp"
     }
 }
