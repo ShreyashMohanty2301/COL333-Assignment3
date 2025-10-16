@@ -2,64 +2,98 @@
 #include <vector>
 #include <set>
 #include <fstream>
+#define NORTH 0
+#define EAST 1
+#define SOUTH 2
+#define WEST 3
 using namespace std;
 
-void oneEntry(long long n , long long m , long long t , vector<vector<long long>>& clauses, int seed) {
-    for(long long i = 1; i <= n; i++) {
-        for(long long j = 1; j <= m; j++) {
-            vector<long long> res;
-            for(int k = 0; k <= t - 1 ; k++) {
-                for(int l = 1; l <= 4; l++) {
-                    res.push_back((i*m + j - 1)*(8LL*t) + 8*k + l);
-                }
+void strtPoint(int n , int m , int k , vector<vector<int>>& clauses, int seed , vector<vector<int>>& lines) {
+    for(int i = 0; i < lines.size(); i++) {
+        vector<int>res;
+        for(int dir = NORTH; dir <= WEST; dir++) {
+            res.push_back(hash_d(i + 1, lines[i][0], lines[i][1], dir, n, m, k));
+        }
+        clauses.push_back({hash_p(i + 1, lines[i][0], lines[i][1], n, m, k)});
+        clauses.push_back(res);
+        encode();
+        clauses.push_back(res);
+        for(int j = 0;j < k; j++) {
+            if(lines[i][0] - 1 >= 0) {
+                clauses.push_back({-hash_d(j, lines[i][0] - 1, lines[i][1], SOUTH, n, m, k)});
             }
-            encode(res , clauses , n, m, t, 1, seed);
+            if(lines[i][1] + 1 < m) {
+                clauses.push_back({-hash_d(j, lines[i][0], lines[i][1] + 1, WEST, n, m, k)});
+            }
+            if(lines[i][0] + 1 < n) {
+                clauses.push_back({-hash_d(j, lines[i][0] + 1, lines[i][1], NORTH, n, m, k)});
+            }
+            if(lines[i][1] - 1 >= 0) {
+                clauses.push_back({-hash_d(j, lines[i][0], lines[i][1] - 1, EAST, n, m, k)});
+            }
         }
     }
 }
 
-void oneExit(long long n , long long m , long long t , vector<vector<long long>>& clauses, int seed) {
-    for(long long i = 1; i <= n; i++) {
-        for(long long j = 1; j <= m; j++) {
-            vector<long long> res;
-            for(int k = 0; k <= t - 1 ; k++) {
-                for(int l = 5; l <= 8; l++) {
-                    res.push_back((i*m + j - 1)*(8LL*t) + 8*k + l);
-                }
+void endPoint(int n , int m , int k , vector<vector<int>>& clauses, int seed , vector<vector<int>>& lines) {
+    for(int i = 0; i < lines.size(); i++) {
+        vector<int>res;
+        if(lines[i][2] - 1 >= 0) {
+            res.push_back({hash_d(i + 1, lines[i][0] - 1, lines[i][1], SOUTH, n, m, k)});
+        }
+        if(lines[i][3] + 1 < m) {
+            res.push_back({hash_d(i + 1, lines[i][0], lines[i][1] + 1, WEST, n, m, k)});
+        }
+        if(lines[i][2] + 1 < n) {
+            res.push_back({hash_d(i + 1, lines[i][0] + 1, lines[i][1], NORTH, n, m, k)});
+        }
+        if(lines[i][3] - 1 >= 0) {
+            res.push_back({hash_d(i + 1, lines[i][0], lines[i][1] - 1, EAST, n, m, k)});
+        }
+        clauses.push_back({hash_p(i + 1, lines[i][2], lines[i][3], n, m, k)});
+        clauses.push_back(res);
+        encode();
+        clauses.push_back(res);
+        for(int j = 0;j < k; j++) {
+            for(int dir = NORTH; dir <= WEST; dir++) {
+                clauses.push_back({-hash_d(j, lines[i][2], lines[i][3], dir, n, m, k)});
             }
-            encode(res , clauses , n ,m , t, 1, seed);
         }
     }
 }
 
-void flow(long long n , long long m , long long t , vector<vector<long long>>& clauses , set<pair<int,int>>& end_points) {
-    for(long long i = 1; i <= n; i++) {
-        for(long long j = 1; j <= m; j++) {
-            if(end_points.find({i,j}) != end_points.end()) continue;
-            vector<long long> res;
-            for(int k = 0; k <= t - 1 ; k++) {
-                for(int l = 1; l <= 4; l++) {
-                    vector<long long> res;
-                    res.push_back(-1LL*((i*m + j - 1)*(8LL*t) + 8*k + l));
-                    res.push_back(-1LL*((i*m + j - 1)*(8LL*t) + 8*k + l + 4));
-                    clauses.push_back(res);
-                }
-            }
-        }
-    }
-    for(long long i = 1; i <= n; i++) {
-        for(long long j = 1; j <= m; j++) {
-            if(end_points.find({i,j}) != end_points.end()) continue;
-            for(int k = 0; k <= t - 1 ; k++) {
-                for(int l = 1; l <= 4; l++) {
-                    vector<long long> res;
-                    res.push_back(-1LL*((i*m + j - 1)*(8LL*t) + 8*k + l));
-                    for(int e = 5; e <= 8; e++) {
-                        if(e - l != 4) {
-                            res.push_back(((i*m + j - 1)*(8LL*t) + 8*k + e));
+void flow(int n , int m , int k , vector<vector<int>>& clauses, set<pair<int,int>>& points) {
+    for(int i = 0; i < n ;i++) {
+        for(int j = 0; j < m; j++) {
+            if(points.find({i , j}) != points.end()) continue;
+            for(int l = 0; l < k; l++) {
+                for(int dir = NORTH; dir <= WEST; dir++) {
+                    vector<int>res;
+                    res.push_back(-hash_d(l, i, j, dir, n, m, k));
+                    vector<int>res1;
+                    for(int dir2 = NORTH; dir2 <=WEST; dir2++) {
+                        if(abs(dir - dir2) == 2) continue;
+                        if(dir2 == NORTH && i - 1 >= 0) {
+                            res.push_back(hash_d(l, i - 1, j, SOUTH, n, m, k));
+                            res1.push_back(hash_d(l, i - 1, j, SOUTH, n, m, k));
+                        }
+                        if(dir2 == EAST && j + 1 < m) {
+                            res.push_back(hash_d(l, i, j + 1, WEST, n, m, k));
+                            res1.push_back(hash_d(l, i, j + 1, WEST, n, m, k));
+                        }
+                        if(dir2 == SOUTH && i + 1 < n) {
+                            res.push_back(hash_d(l, i + 1, j, NORTH, n, m, k));
+                            res1.push_back(hash_d(l, i + 1, j, NORTH, n, m, k));
+                        }
+                        if(dir2 == WEST && j - 1 >= 0) {
+                            res.push_back(hash_d(l, i, j - 1, EAST, n, m, k));
+                            res1.push_back(hash_d(l, i, j - 1, EAST, n, m, k));
                         }
                     }
+                    encode();
+                    res1.push_back(hash_d(l, i, j, dir, n, m, k));
                     clauses.push_back(res);
+                    clauses.push_back(res1);
                 }
             }
         }
