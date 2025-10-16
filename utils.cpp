@@ -16,7 +16,7 @@ void strtPoint(int n , int m , int k , vector<vector<int>>& clauses, int seed , 
         }
         clauses.push_back({hash_p(i + 1, lines[i][0], lines[i][1], n, m, k)});
         clauses.push_back(res);
-        encode();
+        encode(res,clauses, n, m, k, 1, seed);
         clauses.push_back(res);
         for(int j = 0;j < k; j++) {
             if(lines[i][0] - 1 >= 0) {
@@ -52,7 +52,7 @@ void endPoint(int n , int m , int k , vector<vector<int>>& clauses, int seed , v
         }
         clauses.push_back({hash_p(i + 1, lines[i][2], lines[i][3], n, m, k)});
         clauses.push_back(res);
-        encode();
+        encode(res1,clauses, n, m, k, 1, seed);
         clauses.push_back(res);
         for(int j = 0;j < k; j++) {
             for(int dir = NORTH; dir <= WEST; dir++) {
