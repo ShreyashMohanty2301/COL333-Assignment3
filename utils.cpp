@@ -99,33 +99,124 @@ void flow(int n , int m , int k , vector<vector<int>>& clauses, set<pair<int,int
         }
     }
 }
-void limit_on_turns(long long n , long long m , long long t , long long J , vector<vector<long long>>& fin_clauses, int seed) {
-    auto get_id = [&](int i, int j, int k, int dir, bool entry){
-        return ((i*m)+(j-1))*(8*t)+ (8*k + (entry ? dir : dir + 4));
-    };
-    auto get_dir = [](int dir){
-        dir = dir%4;
-        if(dir ==0) return 4;
-        else return dir;
-    };
-    for(int k = 0; k<t; k++){
-        vector<vector<long long>> clauses;
-        for(int i=1; i<=n; i++){
-            for(int j = 1; j<=m; j++){
-                vector<long long> temp;
-                for(int dir = 0; dir < 4; dir++){
-                    temp = {get_id(i,j,k,dir,true), get_id(i,j,k,get_dir(dir+1),false)};
-                    clauses.push_back(temp);
-                    temp = {get_id(i,j,k,dir,true), get_id(i,j,k,get_dir(dir+3),false)};
-                    clauses.push_back(temp);
+//U - 0, R - 1, D- 2, L - 3
+void limit_on_turns(long long n , long long m , long long k , long long J , vector<vector<long long>>& fin_clauses, int seed) {
+    
+    for(int metro= 0; metro<k ; metro++){
+        vector<long long> variables;
+        for(int i= 0; i<n; i++){
+            for(int j =0; j<m; j++){
+                // (x-1,y, D)^(x,y,R)=>T(metro,x,y) , (x-1,y,D)^(x,y,L)=>T(metro,x,y)
+                variables.push_back(hash_t(metro, i, j, n, m, k));
+                if(i-1>=0){
+                    vector<long long> res;
+                    res = {-hash_d(metro, i-1, j, 2, n, m, k), -hash_d(metro, i, j, 1, n, m, k), hash_t(metro, i, j, n, m, k)};
+                    fin_clauses.push_back(res);
+                    res = {-hash_d(metro, i-1, j, 2, n, m, k), -hash_d(metro, i, j, 3, n, m, k), hash_t(metro, i, j, n, m, k)};
+                    fin_clauses.push_back(res);
                 }
-                
+                if(i+1<n){
+                    // (x+1,y, U)^(x,y,R)=>T(metro,x,y) , (x+1,y,U)^(x,y,L)=>T(metro,x,y)
+                    vector<long long> res;
+                    res = {-hash_d(metro, i+1, j, 0, n, m, k), -hash_d(metro, i, j, 1, n, m, k), hash_t(metro, i, j, n, m, k)};
+                    fin_clauses.push_back(res);
+                    res = {-hash_d(metro, i+1, j, 0, n, m, k), -hash_d(metro, i, j, 3, n, m, k), hash_t(metro, i, j, n, m, k)};         
+                    fin_clauses.push_back(res);
+                }
+                if(j-1>=0){
+                    // (x,y-1,R)^(x,y,U)=>T(metro,x,y) , (x,y-1,R)^(x,y,D)=>T(metro,x,y)
+                    vector<long long> res;
+                    res = {-hash_d(metro, i, j-1, 1, n, m, k), -hash_d(metro, i, j, 0, n, m, k), hash_t(metro, i, j, n, m, k)};
+                    fin_clauses.push_back(res);
+                    res = {-hash_d(metro, i, j-1, 1, n, m, k), -hash_d(metro, i, j, 2, n, m, k), hash_t(metro, i, j, n, m, k)};
+                    fin_clauses.push_back(res);
+                }
+                if(j+1<m){
+                    // (x,y+1,L)^(x,y,U)=>T(metro,x,y) , (x,y+1,L)^(x,y,D)=>T(metro,x,y)        
+                    vector<long long> res;
+                    res = {-hash_d(metro, i, j+1, 3, n, m, k), -hash_d(metro, i, j, 0, n, m, k), hash_t(metro, i, j, n, m, k)};
+                    fin_clauses.push_back(res);
+                    res = {-hash_d(metro, i, j+1, 3, n, m, k), -hash_d(metro, i, j, 2, n, m, k), hash_t(metro, i, j, n, m, k)};
+                    fin_clauses.push_back(res);     
+                }
+
             }
         }
-        encode(clauses , fin_clauses , n, m, t, J, seed+k);
+        encode(variables, fin_clauses, n, m, k, J, seed+metro);
     }
 }
+void at_most_one_p(long long n, long long m, long long k, vector<vector<long long>>& fin_clauses) {
+    for(int i=0; i<n; i++){
+        for(int j=0; j<m; j++){
+            vector<long long> variables;
+            for(int metro=0; metro<k; metro++){
+                for(int metro2 = metro+1; metro2<k; metro2++){
+                    vector<long long> res;
+                    res = {-hash_p(metro, i, j, n, m, k), -hash_p(metro2, i, j, n, m, k)};
+                    fin_clauses.push_back(res);
+                }
+            }
+        }
+    }
+}
+void path_consistency(long long n, long long m, long long k, vector<vector<long long>>& fin_clauses) {
+    for(int metro=0; metro<k; metro++){
+        for(int i=0; i<n; i++){
+            for(int j=0; j<m; j++){
+                if(j+1>=m){
+                    fin_clauses.push_back({-hash_d(metro, i, j, 1, n, m, k)});
+                }
+                else{
+                    vector<long long> res;
+                    res.push_back(-hash_d(metro, i, j, 1, n, m, k));
+                    res.push_back(hash_p(metro, i, j+1, n, m, k));
+                    fin_clauses.push_back(res); 
+                    res.push_back(-hash_d(metro, i, j, 1, n, m, k));
+                    res.push_back(hash_p(metro, i, j, n, m, k));
+                    fin_clauses.push_back(res); 
 
+                }
+                if(j-1<0){
+                    fin_clauses.push_back({-hash_d(metro, i, j, 3, n, m, k)});
+                }
+                else{
+                    vector<long long> res;
+                    res.push_back(-hash_d(metro, i, j, 3, n, m, k));
+                    res.push_back(hash_p(metro, i, j-1, n, m, k));
+                    fin_clauses.push_back(res); 
+                    res.push_back(-hash_d(metro, i, j, 3, n, m, k));
+                    res.push_back(hash_p(metro, i, j, n, m, k));
+                    fin_clauses.push_back(res); 
+
+                }
+                if(i+1>=n){
+                    fin_clauses.push_back({-hash_d(metro, i, j, 2, n, m, k)});
+                }
+                else{
+                    vector<long long> res;      
+                    res.push_back(-hash_d(metro, i, j, 2, n, m, k));
+                    res.push_back(hash_p(metro, i+1, j, n, m, k));
+                    fin_clauses.push_back(res); 
+                    res.push_back(-hash_d(metro, i, j, 2, n, m, k));
+                    res.push_back(hash_p(metro, i, j, n, m, k));
+                    fin_clauses.push_back(res); 
+                }
+                if(i-1<0){
+                    fin_clauses.push_back({-hash_d(metro, i, j, 0, n, m, k)});
+                }
+                else{
+                    vector<long long> res;      
+                    res.push_back(-hash_d(metro, i, j, 0, n, m, k));
+                    res.push_back(hash_p(metro, i-1, j, n, m, k));
+                    fin_clauses.push_back(res); 
+                    res.push_back(-hash_d(metro, i, j, 0, n, m, k));
+                    res.push_back(hash_p(metro, i, j, n, m, k));
+                    fin_clauses.push_back(res); 
+                }
+            }
+        }
+    }
+}
 void continuity(long long n , long long m , long long t , vector<vector<long long>>& clauses , set<pair<int,int>>& end_points) {
     for(int i = 1 ; i <= n; i++) {
         for(int j = 1; j <= m; j++) {
